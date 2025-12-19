@@ -1,9 +1,24 @@
 from fastapi import FastAPI
-from app.api.v1.health import router as health_router
+from app.core.config import load_settings
+from app.core.logging import setup_logging
+from app.api.v1.router import router as api_v1_router
 
-app = FastAPI(
-    title="MedGuide AI",
-    version="0.1.0",
-)
 
-app.include_router(health_router, prefix="/api/v1")
+def create_app() -> FastAPI:
+    setup_logging()
+    settings = load_settings()
+
+    app = FastAPI(
+        title=settings.app_name,
+        debug=settings.debug,
+    )
+
+    app.include_router(
+        api_v1_router,
+        prefix=settings.api_v1_prefix,
+    )
+
+    return app
+
+
+app = create_app()
